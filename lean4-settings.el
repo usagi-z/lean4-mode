@@ -23,7 +23,7 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'lsp-mode)
+;; (require 'lsp-mode)
 
 (defgroup lean4 nil
   "Major mode for Lean4 programming language and theorem prover."
@@ -52,9 +52,9 @@
     (t          "lake"))
   "Default executable name of Lake.")
 
-(defcustom lean4-mode-hook (list #'lsp)
+(defcustom lean4-mode-hook nil
   "Hook run after entering `lean4-mode'."
-  :options '(flycheck-mode lsp)
+  :options '(flycheck-mode)
   :type 'hook
   :group 'lean4)
 

@@ -50,7 +50,7 @@
 (require 'lean4-settings)
 (require 'lean4-syntax)
 ;; (require 'lean4-info)
-(require 'lean4-fringe)
+;; (require 'lean4-fringe)
 (require 'lean4-lake)
 
 ;; Declare symbols defined in external dependencies.  This silences
@@ -59,7 +59,6 @@
 (defvar flycheck-after-syntax-check-hook)
 (defvar flycheck-disabled-checkers)
 (defvar flycheck-mode)
-(defvar lsp--cur-version)
 (defvar markdown-code-lang-modes)
 (declare-function flycheck-list-errors "ext:flycheck")
 (declare-function flymake-proc-init-create-temp-buffer-copy "flymake-proc")
