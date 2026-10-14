@@ -49,7 +49,7 @@
 (require 'lean4-util)
 (require 'lean4-settings)
 (require 'lean4-syntax)
-(require 'lean4-info)
+;; (require 'lean4-info)
 (require 'lean4-fringe)
 (require 'lean4-lake)
 
@@ -138,7 +138,7 @@ file, recompiling, and reloading all imports."
   (local-set-key lean4-keybinding-show-key                  #'quail-show-key)
   (local-set-key lean4-keybinding-tab-indent                #'lean4-tab-indent)
   ;; (local-set-key lean4-keybinding-hole                      #'lean4-hole)
-  (local-set-key lean4-keybinding-lean4-toggle-info         #'lean4-toggle-info)
+  ;; (local-set-key lean4-keybinding-lean4-toggle-info         #'lean4-toggle-info)
   ;; (local-set-key lean4-keybinding-lean4-message-boxes-toggle #'lean4-message-boxes-toggle)
   (local-set-key lean4-keybinding-lake-build                #'lean4-lake-build)
   (local-set-key lean4-keybinding-refresh-file-dependencies #'lean4-refresh-file-dependencies)
@@ -172,9 +172,10 @@ file, recompiling, and reloading all imports."
     (before-save-hook . lean4-whitespace-cleanup)
     ;; info view
     ;; update errors immediately, but delay querying goal
-    (flycheck-after-syntax-check-hook . lean4-info-buffer-redisplay-debounced)
-    (post-command-hook . lean4-info-buffer-redisplay-debounced)
-    (lsp-on-idle-hook . lean4-info-buffer-refresh))
+    ;; (flycheck-after-syntax-check-hook . lean4-info-buffer-redisplay-debounced)
+    ;; (post-command-hook . lean4-info-buffer-redisplay-debounced)
+    ;; (lsp-on-idle-hook . lean4-info-buffer-refresh)
+    )
   "Hooks which lean4-mode needs to hook in.
 
 The `car' of each pair is a hook variable, the `cdr' a function
