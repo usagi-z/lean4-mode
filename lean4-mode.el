@@ -44,7 +44,7 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'pcase)
-(require 'lsp-mode)
+;; (require 'lsp-mode)
 (require 'lean4-eri)
 (require 'lean4-util)
 (require 'lean4-settings)
@@ -107,22 +107,22 @@ FILE-NAME."
   (interactive)
   (lean4-execute))
 
-(defun lean4-refresh-file-dependencies ()
-  "Refresh the file dependencies.
+;; (defun lean4-refresh-file-dependencies ()
+;;   "Refresh the file dependencies.
 
-This function restarts the server subprocess for the current
-file, recompiling, and reloading all imports."
-  (interactive)
-  (lsp-notify
-   "textDocument/didClose"
-   `(:textDocument ,(lsp--text-document-identifier)))
-  (lsp-notify
-   "textDocument/didOpen"
-   (list :textDocument
-         (list :uri (lsp--buffer-uri)
-               :languageId (lsp-buffer-language)
-               :version lsp--cur-version
-               :text (lsp--buffer-content)))))
+;; This function restarts the server subprocess for the current
+;; file, recompiling, and reloading all imports."
+;;   (interactive)
+;;   (lsp-notify
+;;    "textDocument/didClose"
+;;    `(:textDocument ,(lsp--text-document-identifier)))
+;;   (lsp-notify
+;;    "textDocument/didOpen"
+;;    (list :textDocument
+;;          (list :uri (lsp--buffer-uri)
+;;                :languageId (lsp-buffer-language)
+;;                :version lsp--cur-version
+;;                :text (lsp--buffer-content)))))
 
 (defun lean4-tab-indent ()
   "Lean 4 function for TAB indent."
@@ -141,7 +141,7 @@ file, recompiling, and reloading all imports."
   ;; (local-set-key lean4-keybinding-lean4-toggle-info         #'lean4-toggle-info)
   ;; (local-set-key lean4-keybinding-lean4-message-boxes-toggle #'lean4-message-boxes-toggle)
   (local-set-key lean4-keybinding-lake-build                #'lean4-lake-build)
-  (local-set-key lean4-keybinding-refresh-file-dependencies #'lean4-refresh-file-dependencies)
+  ;; (local-set-key lean4-keybinding-refresh-file-dependencies #'lean4-refresh-file-dependencies)
   ;; This only works as a mouse binding due to the event, so it is not abstracted
   ;; to avoid user confusion.
   ;; (local-set-key (kbd "<mouse-3>")                         #'lean4-right-click-show-menu)
@@ -163,7 +163,7 @@ file, recompiling, and reloading all imports."
     ;; be offered a working menu-item.  Alternatively, the menu-item
     ;; could also be dropped for both cases.
     ["List of errors"       flycheck-list-errors    flycheck-mode]
-    ["Restart lean process" lsp-workspace-restart   t]
+    ;; ["Restart lean process" lsp-workspace-restart   t]
     ["Customize lean4-mode" (customize-group 'lean) t]))
 
 (defconst lean4-hooks-alist
@@ -190,26 +190,27 @@ enabled and disabled respectively.")
   ;; Flycheck
   (setq-local flycheck-disabled-checkers '())
   ;; Lean massively benefits from semantic tokens, so change default to enabled
-  (setq-local lsp-semantic-tokens-enable t)
-  (lean4-create-lsp-workspace))
+  ;; (setq-local lsp-semantic-tokens-enable t)
+  ;; (lean4-create-lsp-workspace)
+  )
 
-(defun lean4-create-lsp-workspace ()
-  "Create an LSP workspace.
+;; (defun lean4-create-lsp-workspace ()
+;;   "Create an LSP workspace.
 
-Starting from `(buffer-file-name)`, repeatedly look up the
-directory hierarchy for a directory containing a file
-\"lean-toolchain\", and use the last such directory found, if any.
-This allows us to edit files in child packages using the settings
-of the parent project."
-  (let (root)
-    (when-let ((file-name (buffer-file-name)))
-      (while-let ((dir (locate-dominating-file file-name "lean-toolchain")))
-        ;; We found a toolchain file, but maybe it belongs to a package.
-        ;; Continue looking until there are no more toolchain files.
-        (setq root dir
-              file-name (file-name-directory (directory-file-name dir)))))
-    (when root
-      (lsp-workspace-folders-add root))))
+;; Starting from `(buffer-file-name)`, repeatedly look up the
+;; directory hierarchy for a directory containing a file
+;; \"lean-toolchain\", and use the last such directory found, if any.
+;; This allows us to edit files in child packages using the settings
+;; of the parent project."
+;;   (let (root)
+;;     (when-let ((file-name (buffer-file-name)))
+;;       (while-let ((dir (locate-dominating-file file-name "lean-toolchain")))
+;;         ;; We found a toolchain file, but maybe it belongs to a package.
+;;         ;; Continue looking until there are no more toolchain files.
+;;         (setq root dir
+;;               file-name (file-name-directory (directory-file-name dir)))))
+;;     (when root
+;;       (lsp-workspace-folders-add root))))
 
 ;;;###autoload
 (define-derived-mode lean4-mode prog-mode "Lean 4"
@@ -277,8 +278,8 @@ of the parent project."
 
 ;; LSP init
 ;; Ref: https://emacs-lsp.github.io/lsp-mode/page/adding-new-language/
-(add-to-list 'lsp-language-id-configuration
-             '(lean4-mode . "lean"))
+;; (add-to-list 'lsp-language-id-configuration
+;;              '(lean4-mode . "lean"))
 
 (defun lean4--server-cmd ()
   "Return Lean server command.
@@ -290,12 +291,12 @@ otherwise return '/path/to/lean --server'."
         `(,(lean4-get-executable "lake") "serve"))
     (error `(,(lean4-get-executable lean4-executable-name) "--server"))))
 
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-stdio-connection #'lean4--server-cmd)
-                  :major-modes '(lean4-mode)
-                  :server-id 'lean4-lsp
-                  :notification-handlers (ht ("$/lean/fileProgress" #'lean4-fringe-update))
-                  :semantic-tokens-faces-overrides '(:types (("leanSorryLike" . font-lock-warning-face)))))
+;; (lsp-register-client
+;;  (make-lsp-client :new-connection (lsp-stdio-connection #'lean4--server-cmd)
+;;                   :major-modes '(lean4-mode)
+;;                   :server-id 'lean4-lsp
+;;                   :notification-handlers (ht ("$/lean/fileProgress" #'lean4-fringe-update))
+;;                   :semantic-tokens-faces-overrides '(:types (("leanSorryLike" . font-lock-warning-face)))))
 
 (provide 'lean4-mode)
 ;;; lean4-mode.el ends here
