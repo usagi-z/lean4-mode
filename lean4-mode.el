@@ -10,7 +10,7 @@
 ;; Maintainer: Yury G. Kudryashov <urkud@urkud.name>
 ;; Created: Jan 09, 2014
 ;; Keywords: languages
-;; Package-Requires: ((emacs "27.1") (compat "28.1") (dash "2.18.0") (magit-section "2.90.1"))
+;; Package-Requires: ((emacs "29.1") (compat "28.1") (dash "2.18.0") (magit-section "2.90.1"))
 ;; URL: https://github.com/leanprover-community/lean4-mode
 ;; SPDX-License-Identifier: Apache-2.0
 ;; Version: 1.1.2
@@ -45,6 +45,7 @@
 (require 'dash)
 (require 'pcase)
 ;; (require 'lsp-mode)
+(require 'eglot)
 (require 'lean4-eri)
 (require 'lean4-util)
 (require 'lean4-settings)
