@@ -71,7 +71,7 @@ If LAKE-NAME is nonempty, then prepend \"LAKE-NAME env\" to the command
 \"EXE-NAME ARGS FILE-NAME\"."
   (if lake-name
       (format "%s env %s %s %s" lake-name exe-name args file-name)
-      (format "%s %s %s" exe-name args file-name)))
+    (format "%s %s %s" exe-name args file-name)))
 
 (defun lean4-create-temp-in-system-tempdir (file-name prefix)
   "Create a temp lean file and return its name.
@@ -105,23 +105,6 @@ FILE-NAME."
   "Execute Lean in the current buffer."
   (interactive)
   (lean4-execute))
-
-;; (defun lean4-refresh-file-dependencies ()
-;;   "Refresh the file dependencies.
-
-;; This function restarts the server subprocess for the current
-;; file, recompiling, and reloading all imports."
-;;   (interactive)
-;;   (lsp-notify
-;;    "textDocument/didClose"
-;;    `(:textDocument ,(lsp--text-document-identifier)))
-;;   (lsp-notify
-;;    "textDocument/didOpen"
-;;    (list :textDocument
-;;          (list :uri (lsp--buffer-uri)
-;;                :languageId (lsp-buffer-language)
-;;                :version lsp--cur-version
-;;                :text (lsp--buffer-content)))))
 
 (defun lean4-tab-indent ()
   "Lean 4 function for TAB indent."
@@ -187,29 +170,23 @@ enabled and disabled respectively.")
   ;;(setq lean4-right-click-item-functions '(lean4-info-right-click-find-definition
   ;;                                        lean4-hole-right-click))
   ;; Flycheck
-  (setq-local flycheck-disabled-checkers '())
-  ;; Lean massively benefits from semantic tokens, so change default to enabled
-  ;; (setq-local lsp-semantic-tokens-enable t)
-  ;; (lean4-create-lsp-workspace)
-  )
+  (setq-local flycheck-disabled-checkers '()))
 
-;; (defun lean4-create-lsp-workspace ()
-;;   "Create an LSP workspace.
+(defun lean4--server-cmd ()
+  "Return Lean server command.
+If found lake version at least 3.1.0, then return '/path/to/lake serve',
+otherwise return '/path/to/lean --server'."
+  (condition-case nil
+      (if (string-version-lessp (car (process-lines (lean4-get-executable "lake") "--version")) "3.1.0")
+          `(,(lean4-get-executable lean4-executable-name) "--server")
+        `(,(lean4-get-executable "lake") "serve"))
+    (error `(,(lean4-get-executable lean4-executable-name) "--server"))))
 
-;; Starting from `(buffer-file-name)`, repeatedly look up the
-;; directory hierarchy for a directory containing a file
-;; \"lean-toolchain\", and use the last such directory found, if any.
-;; This allows us to edit files in child packages using the settings
-;; of the parent project."
-;;   (let (root)
-;;     (when-let ((file-name (buffer-file-name)))
-;;       (while-let ((dir (locate-dominating-file file-name "lean-toolchain")))
-;;         ;; We found a toolchain file, but maybe it belongs to a package.
-;;         ;; Continue looking until there are no more toolchain files.
-;;         (setq root dir
-;;               file-name (file-name-directory (directory-file-name dir)))))
-;;     (when root
-;;       (lsp-workspace-folders-add root))))
+(defun lean4--register-with-eglot ()
+  "Register neocaml modes with eglot if loaded."
+  (when (boundp 'eglot-server-programs)
+    (add-to-list 'eglot-server-programs
+                 `(lean4-mode . ,(lean4--server-cmd)))))
 
 ;;;###autoload
 (define-derived-mode lean4-mode prog-mode "Lean 4"
@@ -248,11 +225,13 @@ enabled and disabled respectively.")
     (re-search-forward (rx bol "Lean (version " (group (+ digit) (+ "." (+ digit)))))
     (version-to-list (match-string 1))))
 
+;;;###autoload
 (defun lean4-show-version ()
   "Print Lean 4 version."
   (interactive)
   (message "Lean %s" (mapconcat #'number-to-string (lean4--version) ".")))
 
+;; Automatically use lean4-mode for .lean files.
 ;;;###autoload
 (defun lean4-select-mode ()
   "Automatically select mode (Lean 3 vs Lean 4)."
@@ -261,41 +240,17 @@ enabled and disabled respectively.")
       (lean-mode)
     (lean4-mode)))
 
-;; Automatically use lean4-mode for .lean files.
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("\\.lean\\'" . lean4-select-mode))
 
-;;;###autoload
+;; Use utf-8 encoding
+;;;### autoload
 (with-eval-after-load 'markdown-mode
   (add-to-list 'markdown-code-lang-modes
                '("lean" . lean4-select-mode)))
 
-;; Use utf-8 encoding
-;;;### autoload
 (modify-coding-system-alist 'file "\\.lean\\'" 'utf-8)
-
-;; LSP init
-;; Ref: https://emacs-lsp.github.io/lsp-mode/page/adding-new-language/
-;; (add-to-list 'lsp-language-id-configuration
-;;              '(lean4-mode . "lean"))
-
-(defun lean4--server-cmd ()
-  "Return Lean server command.
-If found lake version at least 3.1.0, then return '/path/to/lake serve',
-otherwise return '/path/to/lean --server'."
-  (condition-case nil
-      (if (string-version-lessp (car (process-lines (lean4-get-executable "lake") "--version")) "3.1.0")
-          `(,(lean4-get-executable lean4-executable-name) "--server")
-        `(,(lean4-get-executable "lake") "serve"))
-    (error `(,(lean4-get-executable lean4-executable-name) "--server"))))
-
-;; (lsp-register-client
-;;  (make-lsp-client :new-connection (lsp-stdio-connection #'lean4--server-cmd)
-;;                   :major-modes '(lean4-mode)
-;;                   :server-id 'lean4-lsp
-;;                   :notification-handlers (ht ("$/lean/fileProgress" #'lean4-fringe-update))
-;;                   :semantic-tokens-faces-overrides '(:types (("leanSorryLike" . font-lock-warning-face)))))
 
 (provide 'lean4-mode)
 ;;; lean4-mode.el ends here

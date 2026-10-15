@@ -52,9 +52,9 @@
     (t          "lake"))
   "Default executable name of Lake.")
 
-(defcustom lean4-mode-hook nil
+(defcustom lean4-mode-hook '(eglot-ensure)
   "Hook run after entering `lean4-mode'."
-  :options '(flycheck-mode)
+  :options '(flycheck-mode eglot-ensure)
   :type 'hook
   :group 'lean4)
 
