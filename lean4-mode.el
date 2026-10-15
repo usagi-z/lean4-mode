@@ -213,6 +213,7 @@ otherwise return '/path/to/lean --server'."
   (if (fboundp 'electric-indent-local-mode)
       (electric-indent-local-mode -1))
   ;; (abbrev-mode 1)
+  (lean4--register-with-eglot)
   (pcase-dolist (`(,hook . ,fn) lean4-hooks-alist)
     (add-hook hook fn nil 'local))
   (lean4-mode-setup))
