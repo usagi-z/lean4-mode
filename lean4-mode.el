@@ -173,21 +173,21 @@ enabled and disabled respectively.")
   ;; Flycheck
   (setq-local flycheck-disabled-checkers '()))
 
-(defun lean4--server-cmd ()
-  "Return Lean server command.
-If found lake version at least 3.1.0, then return '/path/to/lake serve',
-otherwise return '/path/to/lean --server'."
-  (condition-case nil
-      (if (string-version-lessp (car (process-lines (lean4-get-executable "lake") "--version")) "3.1.0")
-          `(,(lean4-get-executable lean4-executable-name) "--server")
-        `(,(lean4-get-executable "lake") "serve"))
-    (error `(,(lean4-get-executable lean4-executable-name) "--server"))))
+;; (defun lean4--server-cmd ()
+;;   "Return Lean server command.
+;; If found lake version at least 3.1.0, then return '/path/to/lake serve',
+;; otherwise return '/path/to/lean --server'."
+;;   (condition-case nil
+;;       (if (string-version-lessp (car (process-lines (lean4-get-executable "lake") "--version")) "3.1.0")
+;;           `(,lean4-executable-name "--server")
+;;         '("lake" "serve"))
+;;     (error `(,lean4-executable-name "--server"))))
 
-(defun lean4--register-with-eglot ()
-  "Register neocaml modes with eglot if loaded."
-  (when (boundp 'eglot-server-programs)
-    (add-to-list 'eglot-server-programs
-                 `(lean4-mode . ,(lean4--server-cmd)))))
+;; (defun lean4--register-with-eglot ()
+;;   "Register lean4 mode with eglot if loaded."
+;;   (when (eq major-mode 'lean4-mode)
+;;     (add-to-list 'eglot-server-programs
+;;                  `(lean4-mode . ,(lean4--server-cmd)))))
 
 ;;;###autoload
 (define-derived-mode lean4-mode prog-mode "Lean 4"
@@ -214,7 +214,6 @@ otherwise return '/path/to/lean --server'."
   (if (fboundp 'electric-indent-local-mode)
       (electric-indent-local-mode -1))
   ;; (abbrev-mode 1)
-  (lean4--register-with-eglot)
   (pcase-dolist (`(,hook . ,fn) lean4-hooks-alist)
     (add-hook hook fn nil 'local))
   (lean4-mode-setup))
@@ -245,6 +244,10 @@ otherwise return '/path/to/lean --server'."
 ;;;###autoload
 (add-to-list 'auto-mode-alist
              '("\\.lean\\'" . lean4-select-mode))
+
+;; TODO: add a custom var for older versions of lake
+(add-to-list 'eglot-server-programs
+             `(lean4-mode . ("lake" "serve")))
 
 ;; Use utf-8 encoding
 ;;;### autoload
